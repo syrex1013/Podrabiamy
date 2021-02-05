@@ -19,7 +19,6 @@ emails = "remix3030303@hotmail.com"
 passw = "Fpu6TVFsQfr3avj"
 @bot.event
 async def on_message(message):
-      logged_in = 0
       message_text = message.content.strip().upper()
       if "$MATMA" in message_text and "--" not in message_text:
             data = message_text.split()
@@ -32,11 +31,7 @@ async def on_message(message):
                 pass
             browser.get('{0}/strona-{1}'.format(MATMA_2A2,strona))
             await message.channel.send('Opened page {0}'.format(strona))
-            try:
-                accept = browser.find_element_by_xpath('//button[text()="Przejdź do Odrabiamy"]')
-                accept.click()
-            except:
-                pass
+            AcceptCookie(browser)
             zadania = browser.find_elements_by_class_name("number")
             zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
             linki = []
@@ -85,11 +80,7 @@ async def on_message(message):
                 pass
             browser.get('{0}/strona-{1}'.format(ANG_JK,strona))
             await message.channel.send('Opened page {0}'.format(strona))
-            try:
-                accept = browser.find_element_by_xpath('//button[text()="Przejdź do Odrabiamy"]')
-                accept.click()
-            except:
-                pass
+            AcceptCookie(browser)
             zadania = browser.find_elements_by_class_name("number")
             zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
             linki = []
@@ -144,11 +135,7 @@ async def on_message(message):
                 pass
             browser.get('{0}/strona-{1}'.format(link,strona))
             await message.channel.send('Opened page {0}'.format(strona))
-            try:
-                accept = browser.find_element_by_xpath('//button[text()="Przejdź do Odrabiamy"]')
-                accept.click()
-            except:
-                pass
+            AcceptCookie(browser)
             zadania = browser.find_elements_by_class_name("number")
             zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
             linki = []
@@ -229,6 +216,12 @@ def Login(driver):
     password.send_keys(passw)
     button_login = driver.find_element_by_id("qa-login")
     button_login.click()
+def AcceptCookie(driver):
+    try:
+        accept = driver.find_element_by_xpath('//button[text()="Przejdź do Odrabiamy"]')
+        accept.click()
+    except:
+         pass
 #https://odrabiamy.pl/api/v1.3/sessions.json
 #{"user":{"login":"remix3030303@hotmail.com","password":"Fpu6TVFsQfr3avj"}}
 
