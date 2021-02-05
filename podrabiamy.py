@@ -79,13 +79,7 @@ async def on_message(message):
             strona = data[1]
             zadanie_numer = data[2]
             try:
-                browser.get('https://odrabiamy.pl/II-liceum?signIn=true')
-                email = browser.find_element_by_name("login")
-                password = browser.find_element_by_name("password")
-                email.send_keys(emails)
-                password.send_keys(passw)
-                button_login = browser.find_element_by_id("qa-login")
-                button_login.click()
+                Login(browser)
                 await message.channel.send('Logged in as {0}'.format(emails))
             except:
                 pass
@@ -144,13 +138,7 @@ async def on_message(message):
             zadanie_numer = data[3]
             
             try:
-                browser.get('https://odrabiamy.pl/II-liceum?signIn=true')
-                email = browser.find_element_by_name("login")
-                password = browser.find_element_by_name("password")
-                email.send_keys(emails)
-                password.send_keys(passw)
-                button_login = browser.find_element_by_id("qa-login")
-                button_login.click()
+                Login(browser)
                 await message.channel.send('Logged in as {0}'.format(emails))
             except:
                 pass
