@@ -21,178 +21,117 @@ passw = "Fpu6TVFsQfr3avj"
 async def on_message(message):
       message_text = message.content.strip().upper()
       if "$MATMA" in message_text and "--" not in message_text:
+            #GET DATA FROM CHAT
             data = message_text.split()
             strona = data[1]
             zadanie_numer = data[2]
-            try:
-                Login(browser)
-                await message.channel.send('Logged in as {0}'.format(emails))
-            except:
-                pass
-            browser.get('{0}/strona-{1}'.format(MATMA_2A2,strona))
+
+            #LOGIN
+            Login(browser)
+            await message.channel.send('Logged in as {0}'.format(emails))
+            OpenWebPage(browser,'{0}/strona-{1}'.format(MATMA_2A2,strona))
             await message.channel.send('Opened page {0}'.format(strona))
+
+            #ACCEPT COOKIES
             AcceptCookie(browser)
-            zadania = browser.find_elements_by_class_name("number")
-            zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
-            linki = []
-            for link in zadania_przyciski:
-                href = link.get_attribute("href")
-                linki.append(href)
-            found = {None}
+
+            #GET EXERCISES FROM WHOLE PAGE
             if zadanie_numer == "WSZYSTKO":
+                linki = GetLinksToAllExercises(browser)
                 for lnk in linki:
-                    browser.get(lnk)
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
+                    OpenWebPage(browser,lnk)
+                    ilosc = CalculateAmountOfScroll(browser)
                     for x in range(ilosc):                 
                         browser.save_screenshot("odp.png")
                         ScrollDown(browser)
                         await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            for zadanie in zadania:               
-                if zadanie_numer == zadanie.text:
-                    found = 1
-                    zadanie.click()
-                    await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            if found == 0:
-                await message.channel.send('No exercise {0} on page {1}'.format(zadanie_numer,strona))
+                    await message.channel.send('Whole exercise was sent!')
+            #GET EXERCISE BY NUMBER
             else:
-                found = 0
+                zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                zadanie.click()
+                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
+                ilosc = CalculateAmountOfScroll(browser)
+                for x in range(ilosc):                 
+                    browser.save_screenshot("odp.png")
+                    ScrollDown(browser)
+                    await message.channel.send(file=File('odp.png'))
+                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer))
       elif "$ANGIELSKI" in message_text and "--" not in message_text:
+            #GET DATA FROM CHAT
             data = message_text.split()
             strona = data[1]
             zadanie_numer = data[2]
-            try:
-                Login(browser)
-                await message.channel.send('Logged in as {0}'.format(emails))
-            except:
-                pass
-            browser.get('{0}/strona-{1}'.format(ANG_JK,strona))
+
+            #LOGIN
+            Login(browser)
+            await message.channel.send('Logged in as {0}'.format(emails))
+            OpenWebPage(browser,'{0}/strona-{1}'.format(ANG_JK,strona))
             await message.channel.send('Opened page {0}'.format(strona))
+
+            #ACCEPT COOKIES
             AcceptCookie(browser)
-            zadania = browser.find_elements_by_class_name("number")
-            zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
-            linki = []
-            for link in zadania_przyciski:
-                href = link.get_attribute("href")
-                linki.append(href)
-            found = {None}
+
+            #GET EXERCISES FROM WHOLE PAGE
             if zadanie_numer == "WSZYSTKO":
+                linki = GetLinksToAllExercises(browser)
                 for lnk in linki:
-                    browser.get(lnk)
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
+                    OpenWebPage(browser,lnk)
+                    ilosc = CalculateAmountOfScroll(browser)
                     for x in range(ilosc):                 
                         browser.save_screenshot("odp.png")
                         ScrollDown(browser)
                         await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            found = 0
-            for zadanie in zadania:
-                if zadanie_numer == zadanie.text:
-                    found = 1
-                    zadanie.click()
-                    await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
-                    answer = browser.find_element_by_class_name("solution-area")
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    body = browser.find_element_by_class_name("container-content")
-                    answer.click()
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            if found == 0:
-                await message.channel.send('No exercise {0} on page {1}'.format(zadanie_numer,strona))
+                    await message.channel.send('Whole exercise was sent!')
+            #GET EXERCISE BY NUMBER
             else:
-                found = 0 
+                zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                zadanie.click()
+                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
+                ilosc = CalculateAmountOfScroll(browser)
+                for x in range(ilosc):                 
+                    browser.save_screenshot("odp.png")
+                    ScrollDown(browser)
+                    await message.channel.send(file=File('odp.png'))
+                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer)) 
       elif "$KSIAZKA" in message_text and "--" not in message_text:
+            #GET DATA FROM CHAT
             data = message_text.split()
             link = data[1]
             strona = data[2]
             zadanie_numer = data[3]
-            
-            try:
-                Login(browser)
-                await message.channel.send('Logged in as {0}'.format(emails))
-            except:
-                pass
-            browser.get('{0}/strona-{1}'.format(link,strona))
+
+            #LOGIN
+            Login(browser)
+            await message.channel.send('Logged in as {0}'.format(emails))
+            OpenWebPage(browser,'{0}/strona-{1}'.format(link,strona))
             await message.channel.send('Opened page {0}'.format(strona))
+
+            #ACCEPT COOKIES
             AcceptCookie(browser)
-            zadania = browser.find_elements_by_class_name("number")
-            zadania_przyciski = browser.find_elements_by_class_name("exercise-number-link")
-            linki = []
-            for link in zadania_przyciski:
-                href = link.get_attribute("href")
-                linki.append(href)
-            found = {None}
+
+            #GET EXERCISES FROM WHOLE PAGE
             if zadanie_numer == "WSZYSTKO":
+                linki = GetLinksToAllExercises(browser)
                 for lnk in linki:
-                    browser.get(lnk)
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
+                    OpenWebPage(browser,lnk)
+                    ilosc = CalculateAmountOfScroll(browser)
                     for x in range(ilosc):                 
                         browser.save_screenshot("odp.png")
                         ScrollDown(browser)
                         await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            found = 0
-            for zadanie in zadania:
-                if zadanie_numer == "WSZYSTKO":
-                    found = 1
-                    zadanie.click()
-                    await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
-                    answer = browser.find_element_by_class_name("solution-area")
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    body = browser.find_element_by_class_name("container-content")
-                    answer.click()
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise {0} was sent!'.format(zadanie_numer))
-                elif zadanie_numer == zadanie.text:
-                    found = 1
-                    zadanie.click()
-                    await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
-                    answer = browser.find_element_by_class_name("solution-area")
-                    content = browser.find_element_by_class_name("exerciseContainer")
-                    body = browser.find_element_by_class_name("container-content")
-                    answer.click()
-                    viewport_height = browser.execute_script("return window.innerHeight")   
-                    ilosc = math.ceil(content.size['height']/500)
-                    print(content.size['height'])
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!'.format(zadanie_numer))
-            if found == 0:
-                await message.channel.send('No exercise {0} on page {1}'.format(zadanie_numer,strona))
+                    await message.channel.send('Whole exercise was sent!')
+            #GET EXERCISE BY NUMBER
             else:
-                found = 0
+                zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                zadanie.click()
+                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
+                ilosc = CalculateAmountOfScroll(browser)
+                for x in range(ilosc):                 
+                    browser.save_screenshot("odp.png")
+                    ScrollDown(browser)
+                    await message.channel.send(file=File('odp.png'))
+                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer))
       elif "$HELP" in message_text  and "--" not in message_text:
             await message.channel.send(
             '''
@@ -209,19 +148,42 @@ def ScrollDown(driver):
     body.click()
     body.send_keys(Keys.PAGE_DOWN) 
 def Login(driver):
-    driver.get('https://odrabiamy.pl/II-liceum?signIn=true')
-    email = driver.find_element_by_name("login")
-    password = driver.find_element_by_name("password")
-    email.send_keys(emails)
-    password.send_keys(passw)
-    button_login = driver.find_element_by_id("qa-login")
-    button_login.click()
+    try:
+        driver.get('https://odrabiamy.pl/II-liceum?signIn=true')
+        email = driver.find_element_by_name("login")
+        password = driver.find_element_by_name("password")
+        email.send_keys(emails)
+        password.send_keys(passw)
+        button_login = driver.find_element_by_id("qa-login")
+        button_login.click()
+    except:
+        pass
 def AcceptCookie(driver):
     try:
         accept = driver.find_element_by_xpath('//button[text()="Przejdź do Odrabiamy"]')
         accept.click()
     except:
          pass
+def GetLinksToAllExercises(driver):
+    zadania = driver.find_elements_by_class_name("number")
+    zadania_przyciski = driver.find_elements_by_class_name("exercise-number-link")
+    linki = []
+    for link in zadania_przyciski:
+        href = link.get_attribute("href")
+        linki.append(href)
+    return linki
+def GetExerciseByNumber(driver, number):
+    zadania = driver.find_elements_by_class_name("number")
+    for zadanie in zadania:
+        if number == zadanie.text:
+            return zadanie
+def CalculateAmountOfScroll(driver):
+    content = driver.find_element_by_class_name("exerciseContainer")
+    viewport_height = driver.execute_script("return window.innerHeight")   
+    ilosc = math.ceil(content.size['height']/500)
+    return ilosc
+def OpenWebPage(driver,link):
+    driver.get(link)
 #https://odrabiamy.pl/api/v1.3/sessions.json
 #{"user":{"login":"remix3030303@hotmail.com","password":"Fpu6TVFsQfr3avj"}}
 
