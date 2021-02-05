@@ -28,9 +28,9 @@ async def on_message(message):
 
             #LOGIN
             Login(browser)
-            await message.channel.send('Logged in as {0}'.format(emails))
+            await message.channel.send('Logged in as ***{0}***'.format(emails))
             OpenWebPage(browser,'{0}/strona-{1}'.format(MATMA_2A2,strona))
-            await message.channel.send('Opened page {0}'.format(strona))
+            await message.channel.send('Opened page ***{0}***'.format(strona))
 
             #ACCEPT COOKIES
             AcceptCookie(browser)
@@ -49,6 +49,8 @@ async def on_message(message):
             #GET EXERCISE BY NUMBER
             else:
                 zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                if zadanie == None:
+                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
                 zadanie.click()
                 await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
                 ilosc = CalculateAmountOfScroll(browser)
@@ -56,7 +58,7 @@ async def on_message(message):
                     browser.save_screenshot("odp.png")
                     ScrollDown(browser)
                     await message.channel.send(file=File('odp.png'))
-                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer))
+                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
       elif "$ANGIELSKI" in message_text and "--" not in message_text:
             #GET DATA FROM CHAT
             data = message_text.split()
@@ -65,9 +67,9 @@ async def on_message(message):
 
             #LOGIN
             Login(browser)
-            await message.channel.send('Logged in as {0}'.format(emails))
+            await message.channel.send('Logged in as ***{0}***'.format(emails))
             OpenWebPage(browser,'{0}/strona-{1}'.format(ANG_JK,strona))
-            await message.channel.send('Opened page {0}'.format(strona))
+            await message.channel.send('Opened page ***{0}***'.format(strona))
 
             #ACCEPT COOKIES
             AcceptCookie(browser)
@@ -86,14 +88,16 @@ async def on_message(message):
             #GET EXERCISE BY NUMBER
             else:
                 zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                if zadanie == None:
+                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
                 zadanie.click()
-                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
+                await message.channel.send('Opened exercise ***{0}***'.format(zadanie_numer))
                 ilosc = CalculateAmountOfScroll(browser)
                 for x in range(ilosc):                 
                     browser.save_screenshot("odp.png")
                     ScrollDown(browser)
                     await message.channel.send(file=File('odp.png'))
-                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer)) 
+                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer)) 
       elif "$KSIAZKA" in message_text and "--" not in message_text:
             #GET DATA FROM CHAT
             data = message_text.split()
@@ -103,9 +107,9 @@ async def on_message(message):
 
             #LOGIN
             Login(browser)
-            await message.channel.send('Logged in as {0}'.format(emails))
+            await message.channel.send('Logged in as ***{0}***'.format(emails))
             OpenWebPage(browser,'{0}/strona-{1}'.format(link,strona))
-            await message.channel.send('Opened page {0}'.format(strona))
+            await message.channel.send('Opened page ***{0}***'.format(strona))
 
             #ACCEPT COOKIES
             AcceptCookie(browser)
@@ -124,14 +128,16 @@ async def on_message(message):
             #GET EXERCISE BY NUMBER
             else:
                 zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                if zadanie == None:
+                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
                 zadanie.click()
-                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
+                await message.channel.send('Opened exercise ***{0}***'.format(zadanie_numer))
                 ilosc = CalculateAmountOfScroll(browser)
                 for x in range(ilosc):                 
                     browser.save_screenshot("odp.png")
                     ScrollDown(browser)
                     await message.channel.send(file=File('odp.png'))
-                await message.channel.send('Exercise {0} was sent!'.format(zadanie_numer))
+                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
       elif "$HELP" in message_text  and "--" not in message_text:
             await message.channel.send(
             '''
