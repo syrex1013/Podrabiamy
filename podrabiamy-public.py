@@ -9,6 +9,7 @@ from io import BytesIO
 from PIL import Image
 import math
 import re
+import json 
 
 bot = Client()
 browser = webdriver.Chrome()
@@ -140,18 +141,113 @@ async def on_message(message):
                     ScrollDown(browser)
                     await message.channel.send(file=File('odp.png'))
                 await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
+      elif "$SAVE" in message_text and "--" not in message_text:
+            #GET DATA FROM CHAT
+            data = message_text.split()
+            if len(data) < 3 or len(data) > 3:
+                await message.channel.send('Please supply all arguments! If you don`t remember commands, here they are: $HELP')
+            link = data[1]
+            nazwa = data[2]
+
+
+            #PREPARE DATA
+            dictionary = { 
+                nazwa : link
+            } 
+            json_object = json.dumps(dictionary, indent = 4) 
+            #SAVE 
+            srv_id = message.guild.id
+            try:
+                with open("{0}.txt".format(srv_id)) as json_file:
+                    json_decoded = json.load(json_file)
+                    if nazwa not in json_decoded:
+                        json_decoded[nazwa] = link
+                    else:
+                        await message.channel.send('This shortcut already exists! Please choose another one!')
+                with open("{0}.txt".format(srv_id), 'w') as json_file:
+                    json.dump(json_decoded, json_file)
+                    await message.channel.send('Saved shortcut ***{0}*** with link to book {1}'.format(nazwa,link))
+            except:
+                with open("{0}.txt".format(srv_id), 'w') as json_file:
+                    json.dump(dictionary, json_file)
+                    await message.channel.send('Saved shortcut ***{0}*** with link to book {1}'.format(nazwa,link))
+
       elif "$HELP" in message_text  and "--" not in message_text:
             await message.channel.send(
             '''
             Komendy:
     ***$KSIAZKA***  <link do ksiazki na odrabiamy>  <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadniu.
     ***$PODRABIAMY***  <nazwa ksiazki>  <klasa> <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadniu.
+    ***$SAVE*** <link do ksiazki> <nazwa jaką chcemy przydzielic do ksiazki> -- Zapisuje nazwę jako komende to danej ksiazki.
+    Po zapisaniu mozemy wyslac komende ***$<nazwa ktora przydzielilismy> <strona> <numer zadania>*** aby wysłać zdjęcie odpowiedzi
+    ***$LIST*** - Pokazuje aktualnie zachowane skróty do książek których mozna uzywać.
             
 Informacje:
     W miejscu ***<numer zadania>*** mozna wpisac również ***"WSZYSTKO"*** co spowoduje zrobienie screenów każdego zadania.
     W miejscu ***<nazwa ksiazki>*** wpisujemy zamiast spacji ***_***. Nazwa książki ***nie musi*** być dokładna!!!
-    W miejscu ***<klasa>*** wpisujemy klase bez spacji np. liceum2, podstawowa1, technikum2
+    W miejscu ***<klasa>*** wpisujemy klase bez spacji np. ***liceum2***, ***podstawowa1***, ***technikum2***
             ''')
+      elif "$LIST" in message_text and "--" not in message_text:
+            try:
+                srv_id = message.guild.id
+                with open("{0}.txt".format(srv_id)) as json_file:
+                    json_decoded = json.load(json_file)
+                    pairs = json_decoded.items()
+                    for item,value in pairs:
+                        messag = "***{0}*** was linked to {1}".format(item,value.lower())
+                        await message.channel.send(messag)
+            except:
+                await message.channel.send('No shortcuts exist for this server!')
+      elif "$" in message_text and "--" not in message_text:
+            data = message_text.split()
+            if len(data) == 3:
+                shortcut_name = data[0].replace("$","")
+                strona = data[1]
+                zadanie_numer = data[2]
+
+                #CHECK IF NAME IN JSON
+                srv_id = message.guild.id
+                try:
+                    with open("{0}.txt".format(srv_id)) as json_file:
+                            json_decoded = json.load(json_file)
+                            if "ODRABIAMY" in json_decoded[shortcut_name]:
+
+                                link = json_decoded[shortcut_name]
+                                #LOGIN
+                                Login(browser)
+                                await message.channel.send('Logged in as ***{0}***'.format(emails))
+                                OpenWebPage(browser,'{0}/strona-{1}'.format(link,strona))
+                                await message.channel.send('Opened page ***{0}***'.format(strona))
+
+                                #ACCEPT COOKIES
+                                AcceptCookie(browser)
+
+                                #GET EXERCISES FROM WHOLE PAGE
+                                if zadanie_numer == "WSZYSTKO":
+                                    linki = GetLinksToAllExercises(browser)
+                                    for lnk in linki:
+                                        OpenWebPage(browser,lnk)
+                                        ilosc = CalculateAmountOfScroll(browser)
+                                        for x in range(ilosc):                 
+                                            browser.save_screenshot("odp.png")
+                                            ScrollDown(browser)
+                                            await message.channel.send(file=File('odp.png'))
+                                        await message.channel.send('Whole exercise was sent!')
+                                #GET EXERCISE BY NUMBER
+                                else:
+                                    zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                                    if zadanie == None:
+                                        await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
+                                    zadanie.click()
+                                    await message.channel.send('Opened exercise ***{0}***'.format(zadanie_numer))
+                                    ilosc = CalculateAmountOfScroll(browser)
+                                    for x in range(ilosc):                 
+                                        browser.save_screenshot("odp.png")
+                                        ScrollDown(browser)
+                                        await message.channel.send(file=File('odp.png'))
+                                    await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
+                except:
+                    await message.channel.send('No shortcuts exist for this server or you provided wrong shortcut name!')
 def ScrollDown(driver):
     body = driver.find_element_by_css_selector('body')
     body.click()
