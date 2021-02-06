@@ -8,96 +8,18 @@ import time
 from io import BytesIO
 from PIL import Image
 import math
+import re
 
 bot = Client()
 browser = webdriver.Chrome()
 # change keyword here
-MATMA_2A2 = "https://odrabiamy.pl/matematyka/ksiazka-11493"
-ANG_JK = "https://odrabiamy.pl/jezyk-angielski/ksiazka-11982"
 emails = "remix3030303@hotmail.com"
 passw = "Fpu6TVFsQfr3avj"
+token = "ODA2OTcxODEzNzA4MDM4MTY1.YBxNEQ.l0QBSwFaAMM4RkdeGbCyHD2lSos"
 @bot.event
 async def on_message(message):
       message_text = message.content.strip().upper()
-      if "$MATMA" in message_text and "--" not in message_text:
-            #GET DATA FROM CHAT
-            data = message_text.split()
-            strona = data[1]
-            zadanie_numer = data[2]
-
-            #LOGIN
-            Login(browser)
-            await message.channel.send('Logged in as ***{0}***'.format(emails))
-            OpenWebPage(browser,'{0}/strona-{1}'.format(MATMA_2A2,strona))
-            await message.channel.send('Opened page ***{0}***'.format(strona))
-
-            #ACCEPT COOKIES
-            AcceptCookie(browser)
-
-            #GET EXERCISES FROM WHOLE PAGE
-            if zadanie_numer == "WSZYSTKO":
-                linki = GetLinksToAllExercises(browser)
-                for lnk in linki:
-                    OpenWebPage(browser,lnk)
-                    ilosc = CalculateAmountOfScroll(browser)
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!')
-            #GET EXERCISE BY NUMBER
-            else:
-                zadanie = GetExerciseByNumber(browser,zadanie_numer)
-                if zadanie == None:
-                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
-                zadanie.click()
-                await message.channel.send('Opened exercise {0}'.format(zadanie_numer))
-                ilosc = CalculateAmountOfScroll(browser)
-                for x in range(ilosc):                 
-                    browser.save_screenshot("odp.png")
-                    ScrollDown(browser)
-                    await message.channel.send(file=File('odp.png'))
-                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
-      elif "$ANGIELSKI" in message_text and "--" not in message_text:
-            #GET DATA FROM CHAT
-            data = message_text.split()
-            strona = data[1]
-            zadanie_numer = data[2]
-
-            #LOGIN
-            Login(browser)
-            await message.channel.send('Logged in as ***{0}***'.format(emails))
-            OpenWebPage(browser,'{0}/strona-{1}'.format(ANG_JK,strona))
-            await message.channel.send('Opened page ***{0}***'.format(strona))
-
-            #ACCEPT COOKIES
-            AcceptCookie(browser)
-
-            #GET EXERCISES FROM WHOLE PAGE
-            if zadanie_numer == "WSZYSTKO":
-                linki = GetLinksToAllExercises(browser)
-                for lnk in linki:
-                    OpenWebPage(browser,lnk)
-                    ilosc = CalculateAmountOfScroll(browser)
-                    for x in range(ilosc):                 
-                        browser.save_screenshot("odp.png")
-                        ScrollDown(browser)
-                        await message.channel.send(file=File('odp.png'))
-                    await message.channel.send('Whole exercise was sent!')
-            #GET EXERCISE BY NUMBER
-            else:
-                zadanie = GetExerciseByNumber(browser,zadanie_numer)
-                if zadanie == None:
-                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
-                zadanie.click()
-                await message.channel.send('Opened exercise ***{0}***'.format(zadanie_numer))
-                ilosc = CalculateAmountOfScroll(browser)
-                for x in range(ilosc):                 
-                    browser.save_screenshot("odp.png")
-                    ScrollDown(browser)
-                    await message.channel.send(file=File('odp.png'))
-                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer)) 
-      elif "$KSIAZKA" in message_text and "--" not in message_text:
+      if "$KSIAZKA" in message_text and "--" not in message_text:
             #GET DATA FROM CHAT
             data = message_text.split()
             link = data[1]
@@ -137,16 +59,90 @@ async def on_message(message):
                     ScrollDown(browser)
                     await message.channel.send(file=File('odp.png'))
                 await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
+      elif "$PODRABIAMY" in message_text and "--" not in message_text:
+          #GET DATA FROM CHAT
+            data = message_text.split()
+            nazwa_ksiegi = data[1]
+            klasa = data[2]
+            strona = data[3]
+            zadanie_numer = data[4]
+
+            #LOGIN
+            Login(browser)
+            await message.channel.send('Logged in as ***{0}***'.format(emails))
+            
+            #CHOOSE SCHOOL
+            if "podstaw" in klasa.lower():
+                numer_klasy = re.findall("\d+", klasa)[0]
+                nazwa_parametru = int(numer_klasy)+"-szkoly-podstawowej"
+                OpenWebPage(browser,"https://odrabiamy.pl/{0}".format(nazwa_parametru))                
+                await message.channel.send('Searching in primary school books!')
+            elif "liceum" in klasa.lower():
+                numer_klasy = re.findall("\d+", klasa)[0]
+                roman_numeral = int(numer_klasy)*"I"
+                nazwa_parametru = roman_numeral+"-liceum"
+                OpenWebPage(browser,"https://odrabiamy.pl/{0}".format(nazwa_parametru))
+                await message.channel.send('Searching in High-School books!')
+            elif "technikum" in klasa.lower():
+                numer_klasy = re.findall("\d+", klasa)[0]
+                roman_numeral = int(numer_klasy)*"I"
+                nazwa_parametru = roman_numeral+"-technikum"
+                OpenWebPage(browser,"https://odrabiamy.pl/{0}".format(nazwa_parametru))
+                await message.channel.send('Searching in technical institute books!')
+
+            #ACCEPT COOKIES
+            AcceptCookie(browser)
+
+            #SEARCH FOR BOOK
+            searchfield = browser.find_element_by_class_name("search-field")
+            items = nazwa_ksiegi.split('_')
+            searchfield.send_keys(' '.join(items))
+            
+            bookswrapper = browser.find_element_by_class_name("books-wrapper")
+            book = bookswrapper.find_elements_by_class_name("book")[0]
+            bookname = book.find_element_by_class_name("book-cover-title")
+            await message.channel.send('Opening book "{0}"!'.format(bookname.text))
+            book.click()
+
+            #OPEN PAGE
+            OpenWebPage(browser,browser.current_url+"/strona-{0}".format(strona))
+
+            #GET EXERCISES FROM WHOLE PAGE
+            if zadanie_numer == "WSZYSTKO":
+                linki = GetLinksToAllExercises(browser)
+                for lnk in linki:
+                    OpenWebPage(browser,lnk)
+                    ilosc = CalculateAmountOfScroll(browser)
+                    for x in range(ilosc):                 
+                        browser.save_screenshot("odp.png")
+                        ScrollDown(browser)
+                        await message.channel.send(file=File('odp.png'))
+                    await message.channel.send('Whole exercise was sent!')
+
+            #GET EXERCISE BY NUMBER
+            else:
+                zadanie = GetExerciseByNumber(browser,zadanie_numer)
+                if zadanie == None:
+                    await message.channel.send('Exercise ***{0}*** not found on page ***{1}***!'.format(zadanie_numer,strona))
+                zadanie.click()
+                await message.channel.send('Opened exercise ***{0}***'.format(zadanie_numer))
+                ilosc = CalculateAmountOfScroll(browser)
+                for x in range(ilosc):                 
+                    browser.save_screenshot("odp.png")
+                    ScrollDown(browser)
+                    await message.channel.send(file=File('odp.png'))
+                await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
       elif "$HELP" in message_text  and "--" not in message_text:
             await message.channel.send(
             '''
             Komendy:
-    ***$MATMA***  <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadaniu.
-    ***$ANGIELSKI***  <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadniu.
     ***$KSIAZKA***  <link do ksiazki na odrabiamy>  <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadniu.
+    ***$PODRABIAMY***  <nazwa ksiazki>  <klasa> <numer strony>  <numer zadania> -- Wysyła na kanał zdjęcia odpowiedzi w podanym zadniu.
             
 Informacje:
     W miejscu ***<numer zadania>*** mozna wpisac również ***"WSZYSTKO"*** co spowoduje zrobienie screenów każdego zadania.
+    W miejscu ***<nazwa ksiazki> wpisujemy zamiast spacji _
+    W miejscu ***<klasa>*** wpisujemy klase bez spacji np. liceum2, podstawowa1, technikum2
             ''')
 def ScrollDown(driver):
     body = driver.find_element_by_css_selector('body')
@@ -190,4 +186,4 @@ def CalculateAmountOfScroll(driver):
 def OpenWebPage(driver,link):
     driver.get(link)
 
-bot.run("ODA2OTcxODEzNzA4MDM4MTY1.YBxNEQ.l0QBSwFaAMM4RkdeGbCyHD2lSos")
+bot.run(token)
