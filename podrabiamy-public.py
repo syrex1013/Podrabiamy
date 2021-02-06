@@ -22,6 +22,8 @@ async def on_message(message):
       if "$KSIAZKA" in message_text and "--" not in message_text:
             #GET DATA FROM CHAT
             data = message_text.split()
+            if len(data) < 4 or len(data) > 4:
+                await message.channel.send('Please supply all arguments! If you don`t remember commands, here they are: $HELP')
             link = data[1]
             strona = data[2]
             zadanie_numer = data[3]
@@ -60,8 +62,10 @@ async def on_message(message):
                     await message.channel.send(file=File('odp.png'))
                 await message.channel.send('Exercise ***{0}*** was sent!'.format(zadanie_numer))
       elif "$PODRABIAMY" in message_text and "--" not in message_text:
-          #GET DATA FROM CHAT
+            #GET DATA FROM CHAT
             data = message_text.split()
+            if len(data) < 5 or len(data) > 5:
+                await message.channel.send('Please supply all arguments! If you don`t remember commands, here they are: $HELP')
             nazwa_ksiegi = data[1]
             klasa = data[2]
             strona = data[3]
@@ -89,7 +93,7 @@ async def on_message(message):
                 nazwa_parametru = roman_numeral+"-technikum"
                 OpenWebPage(browser,"https://odrabiamy.pl/{0}".format(nazwa_parametru))
                 await message.channel.send('Searching in technical institute books!')
-
+            
             #ACCEPT COOKIES
             AcceptCookie(browser)
 
@@ -99,13 +103,17 @@ async def on_message(message):
             searchfield.send_keys(' '.join(items))
             
             bookswrapper = browser.find_element_by_class_name("books-wrapper")
-            book = bookswrapper.find_elements_by_class_name("book")[0]
+            try:
+                book = bookswrapper.find_elements_by_class_name("book")[0]
+            except:
+                await message.channel.send('Cannot find book with supplied name!')
             bookname = book.find_element_by_class_name("book-cover-title")
             await message.channel.send('Opening book "{0}"!'.format(bookname.text))
             book.click()
 
             #OPEN PAGE
             OpenWebPage(browser,browser.current_url+"/strona-{0}".format(strona))
+            await message.channel.send('Opened page "{0}"!'.format(strona))
 
             #GET EXERCISES FROM WHOLE PAGE
             if zadanie_numer == "WSZYSTKO":
@@ -141,7 +149,7 @@ async def on_message(message):
             
 Informacje:
     W miejscu ***<numer zadania>*** mozna wpisac również ***"WSZYSTKO"*** co spowoduje zrobienie screenów każdego zadania.
-    W miejscu ***<nazwa ksiazki> wpisujemy zamiast spacji _
+    W miejscu ***<nazwa ksiazki>*** wpisujemy zamiast spacji ***_***. Nazwa książki ***nie musi*** być dokładna!!!
     W miejscu ***<klasa>*** wpisujemy klase bez spacji np. liceum2, podstawowa1, technikum2
             ''')
 def ScrollDown(driver):
