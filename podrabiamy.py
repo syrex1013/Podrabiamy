@@ -14,8 +14,8 @@ browser = webdriver.Chrome()
 # change keyword here
 MATMA_2A2 = "https://odrabiamy.pl/matematyka/ksiazka-11493"
 ANG_JK = "https://odrabiamy.pl/jezyk-angielski/ksiazka-11982"
-emails = "remix3030303@hotmail.com"
-passw = "Fpu6TVFsQfr3avj"
+emails = ""
+passw = ""
 @bot.event
 async def on_message(message):
       message_text = message.content.strip().upper()
