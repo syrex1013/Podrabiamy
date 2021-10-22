@@ -14,9 +14,9 @@ import json
 bot = Client()
 browser = webdriver.Chrome()
 # change keyword here
-emails = "remix3030303@hotmail.com"
-passw = "Fpu6TVFsQfr3avj"
-token = "ODA2OTcxODEzNzA4MDM4MTY1.YBxNEQ.l0QBSwFaAMM4RkdeGbCyHD2lSos"
+emails = ""
+passw = ""
+token = ""
 @bot.event
 async def on_message(message):
       message_text = message.content.strip().upper()
